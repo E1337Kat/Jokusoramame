@@ -44,7 +44,14 @@ class Roleme(Cog):
             await ctx.send(":x: You already have this role.")
             return
 
-        await member.add_roles(role)
+        if role >= ctx.guild.me.top_role:
+            await ctx.send(":x: I cannot assign this role. (it is above my highest role)")
+            return
+
+        try:
+            await member.add_roles(role)
+        except discord.Forbidden:
+            await ctx.send(":x: Forbidden. Fix the fuckin roles")
         await ctx.send(":heavy_check_mark: Given you the `{}` role.".format(role.name))
 
     @roleme.command()

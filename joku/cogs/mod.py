@@ -51,12 +51,14 @@ class Moderation(Cog):
         if message.guild is None:
             return
 
-        if message.author.top_role >= message.guild.me.top_role or message.author == message.guild.owner:
+        if message.author.top_role >= message.guild.me.top_role \
+                or message.author == message.guild.owner:
             # can't ban anyway
             return
 
         enabled = await self.bot.database.get_setting(message.guild, "mention_spam_enabled")
-        threshold = await self.bot.database.get_setting(message.guild, "mention_spam_threshold")
+        threshold = await self.bot.database.get_setting(message.guild, "mention_spam_threshold",
+                                                        default=5)
 
         if self.str_to_bool(enabled):
             if mentions == int(threshold):
@@ -339,12 +341,15 @@ class Moderation(Cog):
             "(`{}` forbidden, `{}` too long/other)".format(count, failed, forbidden, httperror)
         )
 
-    def str_to_bool(s):
+    def str_to_bool(self, s: str):
+        if s is None:
+            return False
+
         if s.lower() == 'true':
             return True
         elif s.lower() == 'false':
             return False
         else:
-            raise ValueError # evil ValueError that doesn't tell you what the wrong value was
+            return False
 
 setup = Moderation.setup

@@ -180,29 +180,15 @@ class DatabaseInterface(object):
 
     # region Settings
 
-#    async def get_setting(self, guild: discord.Guild, setting_name: str, default: typing.Any = None) -> dict:
-#        """
-#        Gets a setting.
-#        """
-#        async with threadpool():
-#            with self.get_session() as session:
-#                setting = session.query(Setting) \
-#                    .filter((Setting.guild_id == guild.id) & (Setting.name == setting_name)) \
-#                    .first()
-
-#                if setting:
-#                    return setting.value
-#                else:
-#                    return default
-
-    async def get_setting(self, guild: discord.Guild, setting_name: str, default: typing.Any = None) -> dict:
+    async def get_setting(self, guild: discord.Guild, setting_name: str,
+                          default: typing.Any = None) -> typing.Any:
         """
         Gets a setting.
         """
         async with threadpool():
             with self.get_session() as session:
                 setting = session.query(Guild) \
-                    .filter((Guild.id == guild.id) & (Guild.settings[setting_name] == 'True')) \
+                    .filter((Guild.id == guild.id) & (Guild.settings.has_key(setting_name))) \
                     .first()
 
                 if setting:
@@ -221,6 +207,7 @@ class DatabaseInterface(object):
                     .one()
 
                 setting.settings[setting_name] = value
+                session.add(setting)
                 session.commit()
 
         return setting
